@@ -96,6 +96,13 @@ Details: [`docs/cursor-cli.md`](docs/cursor-cli.md), [`config/pi/agent/AGENTS.md
 ./scripts/sync.sh --skip-npm
 ```
 
+## Special thanks
+
+- **[pi-cursor-sdk](https://github.com/fitchmultz/pi-cursor-sdk)** — [Mitch Fultz](https://github.com/fitchmultz) for the Pi provider that bridges pi to local `@cursor/sdk` agents.
+- **[pi](https://pi.dev/)** — the Pi coding agent harness and TUI this profile runs on.
+- **Cursor** — `@cursor/sdk` and the model/tool runtime behind `cursor/composer-2.5`.
+- **[pi-setup](https://github.com/JoviDeCroock/pi-setup)** — inspiration for config sync patterns and the fuller Pi extension workflow we slimmed down for Cursor CLI mode.
+
 ## License
 
 Config and scripts in this repo are shared as-is for team use. `pi-cursor-sdk` is MIT — see upstream.
