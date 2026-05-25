@@ -123,6 +123,8 @@ cd packages/pi-cursor-sdk && npm install && npm test
 pi -e /path/to/pi-cursor/packages/pi-cursor-sdk --model cursor/composer-2.5
 ```
 
+`sync.sh` runs `npm install` in `packages/pi-cursor-sdk` first (Pi loads the extension from source and needs `@cursor/sdk` in that tree). If you see `Cannot find module '@cursor/sdk'`, run `./scripts/sync.sh` again or `npm install --prefix packages/pi-cursor-sdk`.
+
 ## Special thanks
 
 - **[pi-cursor-sdk](https://github.com/fitchmultz/pi-cursor-sdk)** — [Mitch Fultz](https://github.com/fitchmultz) for the Pi provider that bridges pi to local `@cursor/sdk` agents.

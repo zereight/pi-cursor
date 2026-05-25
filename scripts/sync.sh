@@ -92,6 +92,17 @@ done
 
 copy_file "${SOURCE_ROOT}/npm/package.json" "${TARGET_DIR}/npm/package.json"
 
+if [[ "$SKIP_NPM" -eq 0 ]]; then
+  if [[ "$DRY_RUN" -eq 1 ]]; then
+    echo "[dry-run] npm install --prefix ${SDK_SOURCE}"
+  elif command -v npm >/dev/null 2>&1; then
+    echo "installing SSOT package deps (@cursor/sdk) in ${SDK_SOURCE} ..."
+    npm install --prefix "${SDK_SOURCE}" --no-fund --no-audit
+  else
+    echo "warning: npm not found; run: npm install --prefix ${SDK_SOURCE}" >&2
+  fi
+fi
+
 if [[ "$SKIP_PI_INSTALL" -eq 0 ]]; then
   SDK_ABS="$(resolve_packages_path)"
   if [[ "$DRY_RUN" -eq 1 ]]; then
