@@ -2,6 +2,12 @@
 #
 # Loads Cursor rules, MCP, plugins, and user settings into SDK agents (pi-cursor-sdk).
 
+if [[ -z "${PI_CURSOR_REPO:-}" ]]; then
+  if [[ -n "${(%):-%x}" ]]; then
+    export PI_CURSOR_REPO="$(cd "$(dirname "${(%):-%x}")/.." && pwd)"
+  fi
+fi
+
 export PI_CURSOR_SETTING_SOURCES="all"
 
 pi-cursor() {

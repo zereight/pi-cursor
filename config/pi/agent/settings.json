@@ -3,7 +3,7 @@
   "defaultProvider": "cursor",
   "defaultModel": "composer-2.5",
   "defaultThinkingLevel": "xhigh",
-  "packages": ["npm:pi-cursor-sdk"],
+  "packages": [],
   "extensions": [],
   "enabledModels": [
     "cursor/composer-2.5",

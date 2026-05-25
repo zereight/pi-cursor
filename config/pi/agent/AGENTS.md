@@ -23,6 +23,11 @@ Pi TUI is a thin shell around **local `@cursor/sdk` agents** (`cursor/composer-2
 - Pi extension tools (`memory_*`, `harness_*`, etc.) do **not** run on the cursor provider path.
 - Replay labels (`cursor_edit`, `cursor-replay-*`) are display-only.
 
+## Provider SSOT
+
+- Edit the vendored provider in **`packages/pi-cursor-sdk/`** in the pi-cursor repo, then run `./scripts/sync.sh`.
+- Conversation mode: `/cursor-mode plan` or `pi --cursor-mode plan` (footer: `cursor plan`).
+
 ## Restore full Pi stack
 
 If you previously used [pi-setup](https://github.com/JoviDeCroock/pi-setup), restore from your backup:

@@ -6,7 +6,7 @@ This profile treats **pi** as a terminal front-end for **Cursor SDK local agents
 
 | Item | Full pi-setup style | pi-cursor (this repo) |
 |------|---------------------|------------------------|
-| `settings.json` packages | Many npm packages + extensions | `npm:pi-cursor-sdk` only |
+| `settings.json` packages | Many npm packages + extensions | Vendored `packages/pi-cursor-sdk` via `pi install` (SSOT) |
 | `settings.json` extensions | pi-setup, memory, mermaid, … | `[]` (empty) |
 | `PI_CURSOR_SETTING_SOURCES` | often `project,user,plugins` | `all` (rules + MCP + plugins + user) |
 | Project `.pi/settings.json` | e.g. pi-autocontext | `{}` (no extra packages) |
@@ -18,7 +18,7 @@ This profile treats **pi** as a terminal front-end for **Cursor SDK local agents
 - [pi](https://pi.dev/) installed (`pi --version`)
 - Cursor API key: `CURSOR_API_KEY` or `/login` → Cursor inside pi
 
-Upstream provider package: [pi-cursor-sdk](https://github.com/fitchmultz/pi-cursor-sdk).
+Provider SSOT: [`packages/pi-cursor-sdk`](../packages/pi-cursor-sdk/) in this repo (upstream: [pi-cursor-sdk](https://github.com/fitchmultz/pi-cursor-sdk)).
 
 ## Environment
 
@@ -37,7 +37,8 @@ pi -p "..."        # one-shot print mode
 
 ## Still active (session UX only)
 
-- `cursor-sdk.json` — fast mode defaults (`composer-2.5`: fast off)
+- `cursor-sdk.json` — fast defaults (`composer-2.5`: fast off) and optional `conversationMode` (`agent` | `plan`)
+- `/cursor-mode` — toggle or set Cursor SDK conversation mode (see vendored SDK README)
 - `cursor-sdk-context-windows.json` — optional context window overrides
 - Pi compaction, theme, retry — unchanged session behavior
 

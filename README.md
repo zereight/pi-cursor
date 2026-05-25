@@ -2,6 +2,8 @@
 
 Shared **Pi TUI + Cursor SDK** profile: run pi as a thin terminal shell over local `@cursor/sdk` agents (`cursor/composer-2.5`), with Cursor rules, MCP, and plugins loaded like the Cursor IDE.
 
+**SSOT:** Provider source and forks live in [`packages/pi-cursor-sdk/`](packages/pi-cursor-sdk/) in this repo (not only the upstream npm package). Config templates live under [`config/pi/agent/`](config/pi/agent/). `scripts/sync.sh` installs both into `~/.pi/agent`.
+
 ## Quick start
 
 ### Prerequisites
@@ -42,7 +44,7 @@ pi-cursor
 # same as: pi --model cursor/composer-2.5
 ```
 
-Inside pi: `/login` → Cursor API key if needed. `/model` to switch Cursor models.
+Inside pi: `/login` → Cursor API key if needed. `/model` to switch Cursor models. `/cursor-mode plan` for Cursor plan conversation mode (see [`packages/pi-cursor-sdk/README.md`](packages/pi-cursor-sdk/README.md)).
 
 ## What gets synced
 
@@ -52,7 +54,10 @@ Inside pi: `/login` → Cursor API key if needed. `/model` to switch Cursor mode
 | `config/pi/agent/cursor-sdk.json` | `~/.pi/agent/cursor-sdk.json` |
 | `config/pi/agent/cursor-sdk-context-windows.json` | `~/.pi/agent/cursor-sdk-context-windows.json` |
 | `config/pi/agent/AGENTS.md` | `~/.pi/agent/AGENTS.md` |
-| `config/pi/agent/npm/package.json` | `~/.pi/agent/npm/package.json` (+ `npm install`) |
+| `config/pi/agent/npm/package.json` | `~/.pi/agent/npm/package.json` (+ `npm install` from `file:packages/pi-cursor-sdk`) |
+| `packages/pi-cursor-sdk/` (SSOT) | `pi install <repo>/packages/pi-cursor-sdk` registers the provider |
+
+`sync.sh` also runs `pi install` on the vendored SDK path so `settings.json` `packages` points at this repo’s fork.
 
 `sync.sh` does **not** copy secrets, sessions, or extensions. Back up your old settings before the first sync:
 
@@ -81,11 +86,25 @@ On the **cursor** provider path:
 
 Details: [`docs/cursor-cli.md`](docs/cursor-cli.md), [`config/pi/agent/AGENTS.md`](config/pi/agent/AGENTS.md).
 
+## Repository layout (SSOT)
+
+```text
+pi-cursor/
+├── packages/pi-cursor-sdk/   # SSOT: Pi provider (vendored fork, edit here)
+├── config/pi/agent/          # SSOT: settings, AGENTS.md, cursor-sdk.json templates
+├── scripts/sync.sh           # Install config + local SDK into ~/.pi/agent
+├── shell/pi-cursor.zsh       # PI_CURSOR_SETTING_SOURCES=all, pi-cursor()
+└── docs/                     # Profile docs
+```
+
+Upstream reference: [fitchmultz/pi-cursor-sdk](https://github.com/fitchmultz/pi-cursor-sdk). Local deltas are documented in [`packages/pi-cursor-sdk/UPSTREAM.md`](packages/pi-cursor-sdk/UPSTREAM.md).
+
 ## Related projects
 
 | Project | Role |
 |---------|------|
-| [pi-cursor-sdk](https://github.com/fitchmultz/pi-cursor-sdk) | npm provider (`pi install npm:pi-cursor-sdk`) |
+| `packages/pi-cursor-sdk` (this repo) | **Canonical** provider for this profile |
+| [pi-cursor-sdk](https://github.com/fitchmultz/pi-cursor-sdk) | Upstream npm provider |
 | [pi-setup](https://github.com/JoviDeCroock/pi-setup) | Full Pi extension lab + sync (overwrites this profile if you run `pnpm pi:sync`) |
 
 ## Sync options
@@ -94,6 +113,14 @@ Details: [`docs/cursor-cli.md`](docs/cursor-cli.md), [`config/pi/agent/AGENTS.md
 ./scripts/sync.sh --dry-run
 ./scripts/sync.sh --target /tmp/pi-agent-test
 ./scripts/sync.sh --skip-npm
+./scripts/sync.sh --skip-pi-install   # config only; you run pi install yourself
+```
+
+Develop the provider without publishing to npm:
+
+```bash
+cd packages/pi-cursor-sdk && npm install && npm test
+pi -e /path/to/pi-cursor/packages/pi-cursor-sdk --model cursor/composer-2.5
 ```
 
 ## Special thanks
