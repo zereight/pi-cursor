@@ -1,0 +1,20 @@
+# Local sync / install artifacts
+.npm/
+node_modules/
+
+# Secrets and machine-local state (never commit)
+auth.json
+**/auth.json
+*.pem
+.env
+.env.*
+
+# Pi runtime (local only)
+sessions/
+run-history.jsonl
+pi-web-sessions.json
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
