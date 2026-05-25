@@ -198,17 +198,14 @@ If you do not see `cursor fast`, fast mode is off.
 Pi can forward Cursor SDK conversation mode to local agents (when the installed `@cursor/sdk` runtime accepts `mode` on `Agent.create` / `agent.send`).
 
 - Default: `agent`
-- Toggle in the TUI: `/cursor-mode` or `/cursor-mode plan`
+- Footer (Cursor models): `mode: agent` or `mode: plan`
+- Toggle in the TUI: **Ctrl+X**, `/cursor-mode`, or `/cursor-mode plan`
 - One-shot CLI: `pi --cursor-mode plan --model cursor/composer-2.5`
 - Persisted in `~/.pi/agent/cursor-sdk.json` as `conversationMode` (alongside `fastDefaults`)
 
-When plan mode is active on a Cursor model, the footer shows:
-
-```text
-cursor plan
-```
-
 Changing mode starts a new pooled SDK agent on the next turn (plan and agent sessions do not share the same pooled agent).
+
+Note: Pi’s built-in **Ctrl+X** in the scoped-models picker (`/scoped-models`) is separate; the extension shortcut applies in the main TUI.
 
 ## Images
 

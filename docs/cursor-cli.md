@@ -38,7 +38,8 @@ pi -p "..."        # one-shot print mode
 ## Still active (session UX only)
 
 - `cursor-sdk.json` — fast defaults (`composer-2.5`: fast off) and optional `conversationMode` (`agent` | `plan`)
-- `/cursor-mode` — toggle or set Cursor SDK conversation mode (see vendored SDK README)
+- Footer `mode: agent` / `mode: plan` — current Cursor conversation mode
+- **Ctrl+X** or `/cursor-mode` — toggle agent ↔ plan (see vendored SDK README)
 - `cursor-sdk-context-windows.json` — optional context window overrides
 - Pi compaction, theme, retry — unchanged session behavior
 

@@ -44,7 +44,7 @@ pi-cursor
 # same as: pi --model cursor/composer-2.5
 ```
 
-Inside pi: `/login` → Cursor API key if needed. `/model` to switch Cursor models. `/cursor-mode plan` for Cursor plan conversation mode (see [`packages/pi-cursor-sdk/README.md`](packages/pi-cursor-sdk/README.md)).
+Inside pi: `/login` → Cursor API key if needed. `/model` to switch Cursor models. **Mode:** footer shows `mode: agent` or `mode: plan`; toggle with **Ctrl+X** or `/cursor-mode` (see [`packages/pi-cursor-sdk/README.md`](packages/pi-cursor-sdk/README.md)).
 
 ## What gets synced
 

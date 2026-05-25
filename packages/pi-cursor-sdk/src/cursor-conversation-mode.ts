@@ -34,6 +34,10 @@ interface CursorModeControlsExtensionApi extends Pick<ExtensionAPI, "appendEntry
 		description?: string;
 		handler: (args: string, ctx: CursorModeControlsContext) => Promise<void> | void;
 	}): void;
+	registerShortcut(shortcut: string, options: {
+		description?: string;
+		handler: (ctx: CursorModeControlsContext) => Promise<void> | void;
+	}): void;
 	on(event: "session_start", handler: (event: SessionStartEvent, ctx: CursorModeControlsContext) => Promise<void> | void): void;
 	on(event: "model_select", handler: (event: { model: ExtensionContext["model"] }, ctx: CursorModeControlsContext) => Promise<void> | void): void;
 	on(event: "turn_start", handler: (event: unknown, ctx: CursorModeControlsContext) => Promise<void> | void): void;
@@ -112,13 +116,55 @@ function isCursorModel(model: CursorModeControlsModel): boolean {
 	return model?.provider === CURSOR_PROVIDER || model?.api === "cursor-sdk";
 }
 
+export function formatConversationModeStatus(mode: CursorConversationMode): string {
+	return `mode: ${mode}`;
+}
+
 function updateCursorModeStatus(ctx: { model: CursorModeControlsModel; ui: Pick<ExtensionContext["ui"], "setStatus"> }, model = ctx.model): void {
 	if (!model || !isCursorModel(model)) {
 		ctx.ui.setStatus("cursor-mode", undefined);
 		return;
 	}
-	const mode = getEffectiveConversationMode();
-	ctx.ui.setStatus("cursor-mode", mode === "plan" ? "cursor plan" : undefined);
+	ctx.ui.setStatus("cursor-mode", formatConversationModeStatus(getEffectiveConversationMode()));
+}
+
+function applyConversationMode(
+	pi: Pick<ExtensionAPI, "appendEntry">,
+	ctx: CursorModeControlsContext,
+	next: CursorConversationMode,
+	notify: boolean,
+): boolean {
+	try {
+		persistConversationMode(pi, next);
+	} catch (error) {
+		updateCursorModeStatus(ctx);
+		if (notify) {
+			ctx.ui.notify(
+				`Failed to save Cursor conversation mode: ${error instanceof Error ? error.message : String(error)}`,
+				"error",
+			);
+		}
+		return false;
+	}
+	updateCursorModeStatus(ctx);
+	if (notify) {
+		ctx.ui.notify(`Cursor conversation mode: ${next}`, "info");
+	}
+	return true;
+}
+
+function toggleConversationMode(pi: Pick<ExtensionAPI, "appendEntry">, ctx: CursorModeControlsContext, notify: boolean): boolean {
+	if (!ctx.model || !isCursorModel(ctx.model)) {
+		if (notify) ctx.ui.notify("Select a Cursor model first (/model cursor/...)", "info");
+		return false;
+	}
+	if (cliConversationMode) {
+		if (notify) ctx.ui.notify(`Cursor mode is forced to ${cliConversationMode} by --cursor-mode`, "info");
+		return false;
+	}
+	const current = getEffectiveConversationMode();
+	const next: CursorConversationMode = current === "plan" ? "agent" : "plan";
+	return applyConversationMode(pi, ctx, next, notify);
 }
 
 function persistConversationMode(pi: Pick<ExtensionAPI, "appendEntry">, mode: CursorConversationMode): void {
@@ -163,18 +209,14 @@ export function registerCursorConversationModeControls(pi: CursorModeControlsExt
 
 			const current = getEffectiveConversationMode();
 			const next = parsed === "toggle" ? (current === "plan" ? "agent" : "plan") : parsed;
-			try {
-				persistConversationMode(pi, next);
-			} catch (error) {
-				updateCursorModeStatus(ctx);
-				ctx.ui.notify(
-					`Failed to save Cursor conversation mode: ${error instanceof Error ? error.message : String(error)}`,
-					"error",
-				);
-				return;
-			}
-			updateCursorModeStatus(ctx);
-			ctx.ui.notify(`Cursor conversation mode: ${next}`, "info");
+			applyConversationMode(pi, ctx, next, true);
+		},
+	});
+
+	pi.registerShortcut("ctrl+x", {
+		description: "Toggle Cursor conversation mode (agent ↔ plan)",
+		handler: async (ctx) => {
+			toggleConversationMode(pi, ctx, true);
 		},
 	});
 
@@ -198,6 +240,7 @@ export function registerCursorConversationModeControls(pi: CursorModeControlsExt
 
 export const __testUtils = {
 	MODE_ENTRY_TYPE,
+	formatConversationModeStatus,
 	getConfigPath,
 	loadGlobalConversationMode,
 	getSessionConversationMode: () => sessionConversationMode,

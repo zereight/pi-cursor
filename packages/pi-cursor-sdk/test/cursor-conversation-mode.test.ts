@@ -3,6 +3,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
+	formatConversationModeStatus,
 	getEffectiveConversationMode,
 	registerCursorConversationModeControls,
 	__testUtils,
@@ -16,11 +17,15 @@ type CursorModeTestContext = {
 
 function createHarness(options: { cursorModeFlag?: string } = {}) {
 	const commands = new Map<string, { handler: (args: string, ctx: CursorModeTestContext) => Promise<void> | void }>();
+	const shortcuts = new Map<string, { handler: (ctx: CursorModeTestContext) => Promise<void> | void }>();
 	const handlers = new Map<string, (event: unknown, ctx: CursorModeTestContext) => Promise<void> | void>();
 	const pi = {
 		registerFlag: vi.fn(),
 		registerCommand: vi.fn((name: string, command: { handler: (args: string, ctx: CursorModeTestContext) => Promise<void> | void }) => {
 			commands.set(name, command);
+		}),
+		registerShortcut: vi.fn((shortcut: string, shortcutOptions: { handler: (ctx: CursorModeTestContext) => Promise<void> | void }) => {
+			shortcuts.set(shortcut, shortcutOptions);
 		}),
 		on: vi.fn((event: string, handler: (event: unknown, ctx: CursorModeTestContext) => Promise<void> | void) => {
 			handlers.set(event, handler);
@@ -34,7 +39,7 @@ function createHarness(options: { cursorModeFlag?: string } = {}) {
 		sessionManager: { getBranch: vi.fn(() => []) },
 	};
 	registerCursorConversationModeControls(pi);
-	return { pi, ctx, commands, handlers };
+	return { pi, ctx, commands, shortcuts, handlers };
 }
 
 describe("cursor-conversation-mode", () => {
@@ -54,6 +59,26 @@ describe("cursor-conversation-mode", () => {
 
 	it("defaults to agent mode", () => {
 		expect(getEffectiveConversationMode()).toBe("agent");
+	});
+
+	it("formats footer status for agent and plan", () => {
+		expect(formatConversationModeStatus("agent")).toBe("mode: agent");
+		expect(formatConversationModeStatus("plan")).toBe("mode: plan");
+	});
+
+	it("registers ctrl+x to toggle conversation mode", async () => {
+		const { shortcuts, handlers, ctx } = createHarness();
+		expect(shortcuts.has("ctrl+x")).toBe(true);
+		await handlers.get("session_start")?.({}, ctx);
+		await shortcuts.get("ctrl+x")?.handler(ctx);
+		expect(getEffectiveConversationMode()).toBe("plan");
+		expect(ctx.ui.setStatus).toHaveBeenLastCalledWith("cursor-mode", "mode: plan");
+	});
+
+	it("shows current mode in footer on session start", async () => {
+		const { handlers, ctx } = createHarness();
+		await handlers.get("session_start")?.({}, ctx);
+		expect(ctx.ui.setStatus).toHaveBeenCalledWith("cursor-mode", "mode: agent");
 	});
 
 	it("uses CLI flag mode when set", async () => {
